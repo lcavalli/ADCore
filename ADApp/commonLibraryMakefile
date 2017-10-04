@@ -112,26 +112,14 @@ ifeq ($(WITH_HDF5),YES)
 endif
 
 ifeq ($(WITH_CFITSIO),YES)
-  ifeq ($(WITH_CCFITS),YES)
-    ifeq ($(CFITSIO_EXTERNAL),NO)
-      LIB_LIBS += cfitsio
+  ifeq ($(CFITSIO_EXTERNAL),NO)
+    LIB_LIBS += cfitsio
+  else
+    ifdef CFITSIO_LIB
+      cfitsio_DIR     = $(CFITSIO_LIB)
+      LIB_LIBS     += cfitsio
     else
-      ifdef CFITSIO_LIB
-        cfitsio_DIR     = $(CFITSIO_LIB)
-        LIB_LIBS     += cfitsio
-      else
-        LIB_SYS_LIBS += cftsio
-      endif
-    endif
-    ifeq ($(CCFITS_EXTERNAL),NO)
-      LIB_LIBS += CCfits
-    else
-      ifdef CFITSIO_LIB
-        CCfits_DIR     = $(CCFITS_LIB)
-        LIB_LIBS     += CCfits
-      else
-        LIB_SYS_LIBS += CCfits
-      endif
+      LIB_SYS_LIBS += cftsio
     endif
   endif
 endif
