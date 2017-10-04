@@ -146,6 +146,14 @@ ifeq ($(WITH_TIFF),YES)
   endif
 endif
 
+ifeq ($(WITH_CFITSIO),YES)
+  ifeq ($(WITH_CCFITS),YES)
+    DBD      += NDFileFITS.dbd
+    INC      += NDFileFITS.h
+    LIB_SRCS += NDFileFITS.cpp
+  endif
+endif
+
 ifeq ($(WITH_EPICS_V4), YES)
   DBD += NDPluginPva.dbd
   INC += NDPluginPva.h

@@ -1,7 +1,7 @@
 
 file {
-	name="/home/epics/devel/areaDetector/ADCore/ADApp/op/adl/ADPlugins.adl"
-	version=030109
+	name="/home/lcavalli/Documents/Progetti/NEOSTED/EPICS/areaDetector-gitfork/./ADCore/ADApp/op/adl/ADPlugins.adl"
+	version=030111
 }
 display {
 	object {
@@ -196,6 +196,11 @@ text {
 		args="P=$(P), R=HDF1:, EXT=h5"
 	}
 	display[6] {
+		label="FITS file #1"
+		name="NDFileFITS.adl"
+		args="P=$(P), R=FITS1:, EXT=fit"
+	}
+	display[7] {
 		label="Null file #1"
 		name="NDFileNull.adl"
 		args="P=$(P), R=Null1:, EXT=null"

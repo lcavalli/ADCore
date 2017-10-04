@@ -4,6 +4,7 @@ file "NDFileJPEG_settings.req",     P=$(P),  R=JPEG1:
 file "NDFileNexus_settings.req",    P=$(P),  R=Nexus1:
 #file "NDFileMagick_settings.req",   P=$(P),  R=Magick1:
 file "NDFileHDF5_settings.req",     P=$(P),  R=HDF1:
+file "NDFileFITS_settings.req",     P=$(P),  R=FITS1:
 file "NDROI_settings.req",          P=$(P),  R=ROI1:
 file "NDROI_settings.req",          P=$(P),  R=ROI2:
 file "NDROI_settings.req",          P=$(P),  R=ROI3:
