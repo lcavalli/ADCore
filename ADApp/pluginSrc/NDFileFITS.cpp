@@ -17,6 +17,8 @@
 
 #include "NDFileFITS.h"
 
+#define STRING_BUFFER_SIZE 81
+
 static const char *driverName = "NDFileFITS";
 
 /** Opens a FITS file.
@@ -31,6 +33,8 @@ asynStatus NDFileFITS::openFile(const char *fileName, NDFileOpenMode_t openMode,
     int naxis = 0;
     long *naxes = NULL;
     int status = 0;
+    int numAttributes = 0;
+    NDAttribute *pAttribute = NULL;
 
     /* We don't support reading yet */
     if (openMode & NDFileModeRead) return (asynError);
@@ -103,6 +107,100 @@ asynStatus NDFileFITS::openFile(const char *fileName, NDFileOpenMode_t openMode,
     }
 
     free(naxes);
+
+    /* Save attributes */
+    this->pFileAttributes->clear();
+    this->getAttributes(this->pFileAttributes);
+    pArray->pAttributeList->copy(this->pFileAttributes);
+
+    numAttributes = this->pFileAttributes->count();
+    asynPrint(this->pasynUserSelf, ASYN_TRACEIO_DRIVER,
+        "%s:%s this->pFileAttributes->count(): %d\n",
+        driverName, functionName, numAttributes);
+
+    asynPrint(this->pasynUserSelf, ASYN_TRACEIO_DRIVER,
+        "%s:%s Looping over attributes...\n",
+        driverName, functionName);
+
+    pAttribute = this->pFileAttributes->next(NULL);
+    while (pAttribute) {
+        char attrString[STRING_BUFFER_SIZE] = {0};
+        const char *attributeName = pAttribute->getName();
+        const char *attributeDescription = pAttribute->getDescription();
+        const char *attributeSource = pAttribute->getSource();
+
+        asynPrint(this->pasynUserSelf, ASYN_TRACEIO_DRIVER,
+          "%s:%s : attribute: %s, source: %s\n",
+          driverName, functionName, attributeName, attributeSource);
+
+        NDAttrDataType_t attrDataType;
+        size_t attrSize;
+        NDAttrValue value;
+        pAttribute->getValueInfo(&attrDataType, &attrSize);
+
+        switch (attrDataType) {
+            case NDAttrInt8:
+            case NDAttrUInt8:
+                pAttribute->getValue(attrDataType, &value.i8);
+                fits_update_key(this->pFits, TBYTE, attributeName, &value.i8, attributeDescription, &status);
+                break;
+
+            case NDAttrInt16:
+                pAttribute->getValue(attrDataType, &value.i16);
+                fits_update_key(this->pFits, TSHORT, attributeName, &value.i16, attributeDescription, &status);
+                break;
+
+            case NDAttrUInt16:
+                pAttribute->getValue(attrDataType, &value.i16);
+                fits_update_key(this->pFits, TUSHORT, attributeName, &value.i16, attributeDescription, &status);
+                break;
+
+            case NDAttrInt32:
+                pAttribute->getValue(attrDataType, &value.i32);
+                fits_update_key(this->pFits, TINT, attributeName, &value.i32, attributeDescription, &status);
+                break;
+
+            case NDAttrUInt32:
+                pAttribute->getValue(attrDataType, &value.i32);
+                fits_update_key(this->pFits, TUINT, attributeName, &value.i32, attributeDescription, &status);
+                break;
+
+            case NDAttrFloat32:
+                pAttribute->getValue(attrDataType, &value.f32);
+                fits_update_key(this->pFits, TFLOAT, attributeName, &value.f32, attributeDescription, &status);
+                break;
+
+            case NDAttrFloat64:
+                pAttribute->getValue(attrDataType, &value.f64);
+                fits_update_key(this->pFits, TDOUBLE, attributeName, &value.f64, attributeDescription, &status);
+                break;
+
+            case NDAttrString:
+                memset(attrString, 0, sizeof(attrString)-1);
+                pAttribute->getValue(attrDataType, attrString, sizeof(attrString)-1);
+                fits_update_key(this->pFits, TSTRING, attributeName, attrString, attributeDescription, &status);
+                break;
+
+            case NDAttrUndefined:
+                break;
+
+            default:
+                asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR,
+                          "%s:%s error, unknown attrDataType=%d\n",
+                          driverName, functionName, attrDataType);
+                return asynError;
+                break;
+        }
+
+        pAttribute = this->pFileAttributes->next(pAttribute);
+    }
+
+    if (status > 0) {
+        asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR,
+            "%s:%s error, fits_update_key failed. file: %s\n",
+            driverName, functionName, fileName);
+        return (asynError);
+    }
 
     return (asynSuccess);
 }
@@ -360,6 +458,8 @@ NDFileFITS::NDFileFITS(const char *portName, int queueSize, int blockingCallback
     /* Set the plugin type string */    
     setStringParam(NDPluginDriverPluginType, "NDFileFITS");
     this->supportsMultipleArrays = 0;
+
+    this->pFileAttributes = new NDAttributeList;
 }
 
 /* Configuration routine.  Called directly, or from the iocsh  */
