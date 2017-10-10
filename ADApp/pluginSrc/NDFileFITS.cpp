@@ -214,7 +214,6 @@ asynStatus NDFileFITS::writeFile(NDArray *pArray)
     int w = 0;
     int h = 0;
     int d = 0;
-    int x = 0;
     int y = 0;
     int z = 0;
     int status = 0;
@@ -260,10 +259,8 @@ asynStatus NDFileFITS::writeFile(NDArray *pArray)
                 char *pSrc = (char *) pArray->pData;
 
                 for (z = 0; z < d; z++) {
-                    for (x = 0; x < w; x++) {
-                        for (y = 0; y < h; y++) {
-                            pDst[z * (w * h) + (h - 1 - y) * w + x] = pSrc[z * (w * h) + y * w + x];
-                        }
+                    for (y = 0; y < h; y++) {
+                        memcpy(&pDst[z * (w * h) + (h - 1 - y) * w], &pSrc[z * (w * h) + y * w], w * sizeof(char));
                     }
                 }
             }
@@ -277,10 +274,8 @@ asynStatus NDFileFITS::writeFile(NDArray *pArray)
                 unsigned char *pSrc = (unsigned char *) pArray->pData;
 
                 for (z = 0; z < d; z++) {
-                    for (x = 0; x < w; x++) {
-                        for (y = 0; y < h; y++) {
-                            pDst[z * (w * h) + (h - 1 - y) * w + x] = pSrc[z * (w * h) + y * w + x];
-                        }
+                    for (y = 0; y < h; y++) {
+                        memcpy(&pDst[z * (w * h) + (h - 1 - y) * w], &pSrc[z * (w * h) + y * w], w * sizeof(unsigned char));
                     }
                 }
             }
@@ -294,10 +289,8 @@ asynStatus NDFileFITS::writeFile(NDArray *pArray)
                 short *pSrc = (short *) pArray->pData;
 
                 for (z = 0; z < d; z++) {
-                    for (x = 0; x < w; x++) {
-                        for (y = 0; y < h; y++) {
-                            pDst[z * (w * h) + (h - 1 - y) * w + x] = pSrc[z * (w * h) + y * w + x];
-                        }
+                    for (y = 0; y < h; y++) {
+                        memcpy(&pDst[z * (w * h) + (h - 1 - y) * w], &pSrc[z * (w * h) + y * w], w * sizeof(short));
                     }
                 }
             }
@@ -311,10 +304,8 @@ asynStatus NDFileFITS::writeFile(NDArray *pArray)
                 unsigned short *pSrc = (unsigned short *) pArray->pData;
 
                 for (z = 0; z < d; z++) {
-                    for (x = 0; x < w; x++) {
-                        for (y = 0; y < h; y++) {
-                            pDst[z * (w * h) + (h - 1 - y) * w + x] = pSrc[z * (w * h) + y * w + x];
-                        }
+                    for (y = 0; y < h; y++) {
+                        memcpy(&pDst[z * (w * h) + (h - 1 - y) * w], &pSrc[z * (w * h) + y * w], w * sizeof(unsigned short));
                     }
                 }
             }
@@ -328,10 +319,8 @@ asynStatus NDFileFITS::writeFile(NDArray *pArray)
                 int *pSrc = (int *) pArray->pData;
 
                 for (z = 0; z < d; z++) {
-                    for (x = 0; x < w; x++) {
-                        for (y = 0; y < h; y++) {
-                            pDst[z * (w * h) + (h - 1 - y) * w + x] = pSrc[z * (w * h) + y * w + x];
-                        }
+                    for (y = 0; y < h; y++) {
+                        memcpy(&pDst[z * (w * h) + (h - 1 - y) * w], &pSrc[z * (w * h) + y * w], w * sizeof(int));
                     }
                 }
             }
@@ -345,10 +334,8 @@ asynStatus NDFileFITS::writeFile(NDArray *pArray)
                 unsigned int *pSrc = (unsigned int *) pArray->pData;
 
                 for (z = 0; z < d; z++) {
-                    for (x = 0; x < w; x++) {
-                        for (y = 0; y < h; y++) {
-                            pDst[z * (w * h) + (h - 1 - y) * w + x] = pSrc[z * (w * h) + y * w + x];
-                        }
+                    for (y = 0; y < h; y++) {
+                        memcpy(&pDst[z * (w * h) + (h - 1 - y) * w], &pSrc[z * (w * h) + y * w], w * sizeof(unsigned int));
                     }
                 }
             }
@@ -362,10 +349,8 @@ asynStatus NDFileFITS::writeFile(NDArray *pArray)
                 float *pSrc = (float *) pArray->pData;
 
                 for (z = 0; z < d; z++) {
-                    for (x = 0; x < w; x++) {
-                        for (y = 0; y < h; y++) {
-                            pDst[z * (w * h) + (h - 1 - y) * w + x] = pSrc[z * (w * h) + y * w + x];
-                        }
+                    for (y = 0; y < h; y++) {
+                        memcpy(&pDst[z * (w * h) + (h - 1 - y) * w], &pSrc[z * (w * h) + y * w], w * sizeof(float));
                     }
                 }
             }
@@ -379,10 +364,8 @@ asynStatus NDFileFITS::writeFile(NDArray *pArray)
                 double *pSrc = (double *) pArray->pData;
 
                 for (z = 0; z < d; z++) {
-                    for (x = 0; x < w; x++) {
-                        for (y = 0; y < h; y++) {
-                            pDst[z * (w * h) + (h - 1 - y) * w + x] = pSrc[z * (w * h) + y * w + x];
-                        }
+                    for (y = 0; y < h; y++) {
+                        memcpy(&pDst[z * (w * h) + (h - 1 - y) * w], &pSrc[z * (w * h) + y * w], w * sizeof(double));
                     }
                 }
             }
