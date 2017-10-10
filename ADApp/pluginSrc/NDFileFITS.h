@@ -35,7 +35,6 @@ public:
 
 private:
     fitsfile *pFits = NULL;
-    NDAttributeList *pFileAttributes = NULL;
 };
 
 #endif

@@ -109,97 +109,96 @@ asynStatus NDFileFITS::openFile(const char *fileName, NDFileOpenMode_t openMode,
     free(naxes);
 
     /* Save attributes */
-    this->pFileAttributes->clear();
-    this->getAttributes(this->pFileAttributes);
-    pArray->pAttributeList->copy(this->pFileAttributes);
+    if (pArray->pAttributeList != NULL) {
 
-    numAttributes = this->pFileAttributes->count();
-    asynPrint(this->pasynUserSelf, ASYN_TRACEIO_DRIVER,
-        "%s:%s this->pFileAttributes->count(): %d\n",
-        driverName, functionName, numAttributes);
-
-    asynPrint(this->pasynUserSelf, ASYN_TRACEIO_DRIVER,
-        "%s:%s Looping over attributes...\n",
-        driverName, functionName);
-
-    pAttribute = this->pFileAttributes->next(NULL);
-    while (pAttribute) {
-        char attrString[STRING_BUFFER_SIZE] = {0};
-        const char *attributeName = pAttribute->getName();
-        const char *attributeDescription = pAttribute->getDescription();
-        const char *attributeSource = pAttribute->getSource();
+        numAttributes = pArray->pAttributeList->count();
+        asynPrint(this->pasynUserSelf, ASYN_TRACEIO_DRIVER,
+            "%s:%s pArray->pAttributeList->count(): %d\n",
+            driverName, functionName, numAttributes);
 
         asynPrint(this->pasynUserSelf, ASYN_TRACEIO_DRIVER,
-          "%s:%s : attribute: %s, source: %s\n",
-          driverName, functionName, attributeName, attributeSource);
+            "%s:%s Looping over attributes...\n",
+            driverName, functionName);
 
-        NDAttrDataType_t attrDataType;
-        size_t attrSize;
-        NDAttrValue value;
-        pAttribute->getValueInfo(&attrDataType, &attrSize);
+        pAttribute = pArray->pAttributeList->next(NULL);
+        while (pAttribute) {
+            char attrString[STRING_BUFFER_SIZE] = {0};
+            const char *attributeName = pAttribute->getName();
+            const char *attributeDescription = pAttribute->getDescription();
+            const char *attributeSource = pAttribute->getSource();
 
-        switch (attrDataType) {
-            case NDAttrInt8:
-            case NDAttrUInt8:
-                pAttribute->getValue(attrDataType, &value.i8);
-                fits_write_key(this->pFits, TBYTE, attributeName, &value.i8, attributeDescription, &status);
-                break;
+            asynPrint(this->pasynUserSelf, ASYN_TRACEIO_DRIVER,
+              "%s:%s : attribute: %s, source: %s\n",
+              driverName, functionName, attributeName, attributeSource);
 
-            case NDAttrInt16:
-                pAttribute->getValue(attrDataType, &value.i16);
-                fits_write_key(this->pFits, TSHORT, attributeName, &value.i16, attributeDescription, &status);
-                break;
+            NDAttrDataType_t attrDataType;
+            size_t attrSize;
+            NDAttrValue value;
+            pAttribute->getValueInfo(&attrDataType, &attrSize);
 
-            case NDAttrUInt16:
-                pAttribute->getValue(attrDataType, &value.i16);
-                fits_write_key(this->pFits, TUSHORT, attributeName, &value.i16, attributeDescription, &status);
-                break;
+            switch (attrDataType) {
+                case NDAttrInt8:
+                case NDAttrUInt8:
+                    pAttribute->getValue(attrDataType, &value.i8);
+                    fits_write_key(this->pFits, TBYTE, attributeName, &value.i8, attributeDescription, &status);
+                    break;
 
-            case NDAttrInt32:
-                pAttribute->getValue(attrDataType, &value.i32);
-                fits_write_key(this->pFits, TINT, attributeName, &value.i32, attributeDescription, &status);
-                break;
+                case NDAttrInt16:
+                    pAttribute->getValue(attrDataType, &value.i16);
+                    fits_write_key(this->pFits, TSHORT, attributeName, &value.i16, attributeDescription, &status);
+                    break;
 
-            case NDAttrUInt32:
-                pAttribute->getValue(attrDataType, &value.i32);
-                fits_write_key(this->pFits, TUINT, attributeName, &value.i32, attributeDescription, &status);
-                break;
+                case NDAttrUInt16:
+                    pAttribute->getValue(attrDataType, &value.i16);
+                    fits_write_key(this->pFits, TUSHORT, attributeName, &value.i16, attributeDescription, &status);
+                    break;
 
-            case NDAttrFloat32:
-                pAttribute->getValue(attrDataType, &value.f32);
-                fits_write_key(this->pFits, TFLOAT, attributeName, &value.f32, attributeDescription, &status);
-                break;
+                case NDAttrInt32:
+                    pAttribute->getValue(attrDataType, &value.i32);
+                    fits_write_key(this->pFits, TINT, attributeName, &value.i32, attributeDescription, &status);
+                    break;
 
-            case NDAttrFloat64:
-                pAttribute->getValue(attrDataType, &value.f64);
-                fits_write_key(this->pFits, TDOUBLE, attributeName, &value.f64, attributeDescription, &status);
-                break;
+                case NDAttrUInt32:
+                    pAttribute->getValue(attrDataType, &value.i32);
+                    fits_write_key(this->pFits, TUINT, attributeName, &value.i32, attributeDescription, &status);
+                    break;
 
-            case NDAttrString:
-                memset(attrString, 0, sizeof(attrString)-1);
-                pAttribute->getValue(attrDataType, attrString, sizeof(attrString)-1);
-                fits_write_key(this->pFits, TSTRING, attributeName, attrString, attributeDescription, &status);
-                break;
+                case NDAttrFloat32:
+                    pAttribute->getValue(attrDataType, &value.f32);
+                    fits_write_key(this->pFits, TFLOAT, attributeName, &value.f32, attributeDescription, &status);
+                    break;
 
-            case NDAttrUndefined:
-                break;
+                case NDAttrFloat64:
+                    pAttribute->getValue(attrDataType, &value.f64);
+                    fits_write_key(this->pFits, TDOUBLE, attributeName, &value.f64, attributeDescription, &status);
+                    break;
 
-            default:
-                asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR,
-                          "%s:%s error, unknown attrDataType=%d\n",
-                          driverName, functionName, attrDataType);
-                return asynError;
-                break;
+                case NDAttrString:
+                    memset(attrString, 0, sizeof(attrString)-1);
+                    pAttribute->getValue(attrDataType, attrString, sizeof(attrString)-1);
+                    fits_write_key(this->pFits, TSTRING, attributeName, attrString, attributeDescription, &status);
+                    break;
+
+                case NDAttrUndefined:
+                    break;
+
+                default:
+                    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR,
+                              "%s:%s error, unknown attrDataType=%d\n",
+                              driverName, functionName, attrDataType);
+                    return asynError;
+                    break;
+            }
+
+            pAttribute = pArray->pAttributeList->next(pAttribute);
         }
 
-        pAttribute = this->pFileAttributes->next(pAttribute);
-    }
-
-    if (status > 0) {
-        asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR,
-            "%s:%s error, fits_write_key failed. file: %s\n",
-            driverName, functionName, fileName);
-        return (asynError);
+        if (status > 0) {
+            asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR,
+                "%s:%s error, fits_write_key failed. file: %s\n",
+                driverName, functionName, fileName);
+            return (asynError);
+        }
     }
 
     return (asynSuccess);
@@ -458,8 +457,6 @@ NDFileFITS::NDFileFITS(const char *portName, int queueSize, int blockingCallback
     /* Set the plugin type string */    
     setStringParam(NDPluginDriverPluginType, "NDFileFITS");
     this->supportsMultipleArrays = 0;
-
-    this->pFileAttributes = new NDAttributeList;
 }
 
 /* Configuration routine.  Called directly, or from the iocsh  */
