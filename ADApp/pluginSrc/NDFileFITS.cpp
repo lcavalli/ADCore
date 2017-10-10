@@ -28,7 +28,6 @@ static const char *driverName = "NDFileFITS";
 asynStatus NDFileFITS::openFile(const char *fileName, NDFileOpenMode_t openMode, NDArray *pArray)
 {
     static const char *functionName = "openFile";
-    int bitpix = BYTE_IMG;
     int naxis = 0;
     long *naxes = NULL;
     int status = 0;
@@ -52,8 +51,7 @@ asynStatus NDFileFITS::openFile(const char *fileName, NDFileOpenMode_t openMode,
     naxis = pArray->ndims;
     if (naxis == 0) return (asynError);
 
-    /* FIXME, use std:: stuff */
-    naxes = (long*) malloc(naxis * sizeof(long));
+    naxes = (long *) malloc(naxis * sizeof(long));
     if (naxes == NULL) {
         asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR,
             "%s:%s error, naxes malloc failed. file: %s\n",
@@ -65,38 +63,44 @@ asynStatus NDFileFITS::openFile(const char *fileName, NDFileOpenMode_t openMode,
         naxes[i] = pArray->dims[i].size;
     }
 
+    /* Create empty image */
     switch (pArray->dataType) {
         case NDInt8:
-            bitpix = SBYTE_IMG;
+            fits_create_img(this->pFits, SBYTE_IMG, naxis, naxes, &status);
             break;
+
         case NDUInt8:
-            bitpix = BYTE_IMG;
+            fits_create_img(this->pFits, BYTE_IMG, naxis, naxes, &status);
             break;
+
         case NDInt16:
-            bitpix = SHORT_IMG;
+            fits_create_img(this->pFits, SHORT_IMG, naxis, naxes, &status);
             break;
+
         case NDUInt16:
-            bitpix = USHORT_IMG;
+            fits_create_img(this->pFits, USHORT_IMG, naxis, naxes, &status);
             break;
+
         case NDInt32:
-            bitpix = LONG_IMG;
+            fits_create_img(this->pFits, LONG_IMG, naxis, naxes, &status);
             break;
+
         case NDUInt32:
-            bitpix = ULONG_IMG;
+            fits_create_img(this->pFits, ULONG_IMG, naxis, naxes, &status);
             break;
+
         case NDFloat32:
-            bitpix = FLOAT_IMG;
+            fits_create_img(this->pFits, FLOAT_IMG, naxis, naxes, &status);
             break;
+
         case NDFloat64:
-            bitpix = DOUBLE_IMG;
+            fits_create_img(this->pFits, DOUBLE_IMG, naxis, naxes, &status);
             break;
+
         default:
             return (asynError);
             break;
     }
-
-    /* Create empty image */
-    fits_create_img(this->pFits, bitpix, naxis, naxes, &status);
 
     free(naxes);
 
@@ -109,46 +113,192 @@ asynStatus NDFileFITS::openFile(const char *fileName, NDFileOpenMode_t openMode,
 asynStatus NDFileFITS::writeFile(NDArray *pArray)
 {
     static const char *functionName = "writeFile";
-    int dataType = 0;
     unsigned long nElements = 1;
+    int w = 0;
+    int h = 0;
+    int d = 0;
+    int x = 0;
+    int y = 0;
+    int z = 0;
     int status = 0;
+    void *pOut = NULL;
 
     for (int i = 0; i < pArray->ndims; i++) {
         nElements *= pArray->dims[i].size;
     }
 
+    /* cfitsio handle array with FORTRAN style, we need to vertically flip it */
+    if (pArray->ndims > 3) {
+        /* Avoid transposing */
+        w = 1;
+        h = 1;
+        d = 1;
+    } else if (pArray->ndims == 3) {
+        w = pArray->dims[0].size;
+        h = pArray->dims[1].size;
+        d = pArray->dims[2].size;
+    } else if (pArray->ndims == 2) {
+        w = pArray->dims[0].size;
+        h = pArray->dims[1].size;
+        d = 1;
+    } else if (pArray->ndims == 1) {
+        w = pArray->dims[0].size;
+        h = 1;
+        d = 1;
+    }
+
+    pOut = malloc(pArray->dataSize);
+    if (pOut == NULL) {
+        asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR,
+            "%s:%s error, pOut malloc failed.\n",
+            driverName, functionName);
+        return (asynError);
+    }
+
+    /* Write the image */
     switch (pArray->dataType) {
         case NDInt8:
-            dataType = TSBYTE;
+            {
+                char *pDst = (char *) pOut;
+                char *pSrc = (char *) pArray->pData;
+
+                for (z = 0; z < d; z++) {
+                    for (x = 0; x < w; x++) {
+                        for (y = 0; y < h; y++) {
+                            pDst[z * (w * h) + (h - 1 - y) * w + x] = pSrc[z * (w * h) + y * w + x];
+                        }
+                    }
+                }
+            }
+
+            fits_write_img(this->pFits, TSBYTE, 1, nElements, pOut, &status);
             break;
+
         case NDUInt8:
-            dataType = TBYTE;
+            {
+                unsigned char *pDst = (unsigned char *) pOut;
+                unsigned char *pSrc = (unsigned char *) pArray->pData;
+
+                for (z = 0; z < d; z++) {
+                    for (x = 0; x < w; x++) {
+                        for (y = 0; y < h; y++) {
+                            pDst[z * (w * h) + (h - 1 - y) * w + x] = pSrc[z * (w * h) + y * w + x];
+                        }
+                    }
+                }
+            }
+
+            fits_write_img(this->pFits, TBYTE, 1, nElements, pOut, &status);
             break;
+
         case NDInt16:
-            dataType = TSHORT;
+            {
+                short *pDst = (short *) pOut;
+                short *pSrc = (short *) pArray->pData;
+
+                for (z = 0; z < d; z++) {
+                    for (x = 0; x < w; x++) {
+                        for (y = 0; y < h; y++) {
+                            pDst[z * (w * h) + (h - 1 - y) * w + x] = pSrc[z * (w * h) + y * w + x];
+                        }
+                    }
+                }
+            }
+
+            fits_write_img(this->pFits, TSHORT, 1, nElements, pOut, &status);
             break;
+
         case NDUInt16:
-            dataType = TUSHORT;
+            {
+                unsigned short *pDst = (unsigned short *) pOut;
+                unsigned short *pSrc = (unsigned short *) pArray->pData;
+
+                for (z = 0; z < d; z++) {
+                    for (x = 0; x < w; x++) {
+                        for (y = 0; y < h; y++) {
+                            pDst[z * (w * h) + (h - 1 - y) * w + x] = pSrc[z * (w * h) + y * w + x];
+                        }
+                    }
+                }
+            }
+
+            fits_write_img(this->pFits, TUSHORT, 1, nElements, pOut, &status);
             break;
+
         case NDInt32:
-            dataType = TLONG;
+            {
+                int *pDst = (int *) pOut;
+                int *pSrc = (int *) pArray->pData;
+
+                for (z = 0; z < d; z++) {
+                    for (x = 0; x < w; x++) {
+                        for (y = 0; y < h; y++) {
+                            pDst[z * (w * h) + (h - 1 - y) * w + x] = pSrc[z * (w * h) + y * w + x];
+                        }
+                    }
+                }
+            }
+
+            fits_write_img(this->pFits, TINT, 1, nElements, pOut, &status);
             break;
+
         case NDUInt32:
-            dataType = TULONG;
+            {
+                unsigned int *pDst = (unsigned int *) pOut;
+                unsigned int *pSrc = (unsigned int *) pArray->pData;
+
+                for (z = 0; z < d; z++) {
+                    for (x = 0; x < w; x++) {
+                        for (y = 0; y < h; y++) {
+                            pDst[z * (w * h) + (h - 1 - y) * w + x] = pSrc[z * (w * h) + y * w + x];
+                        }
+                    }
+                }
+            }
+
+            fits_write_img(this->pFits, TUINT, 1, nElements, pOut, &status);
             break;
+
         case NDFloat32:
-            dataType = TFLOAT;
+            {
+                float *pDst = (float *) pOut;
+                float *pSrc = (float *) pArray->pData;
+
+                for (z = 0; z < d; z++) {
+                    for (x = 0; x < w; x++) {
+                        for (y = 0; y < h; y++) {
+                            pDst[z * (w * h) + (h - 1 - y) * w + x] = pSrc[z * (w * h) + y * w + x];
+                        }
+                    }
+                }
+            }
+
+            fits_write_img(this->pFits, TFLOAT, 1, nElements, pOut, &status);
             break;
+
         case NDFloat64:
-            dataType = TDOUBLE;
+            {
+                double *pDst = (double *) pOut;
+                double *pSrc = (double *) pArray->pData;
+
+                for (z = 0; z < d; z++) {
+                    for (x = 0; x < w; x++) {
+                        for (y = 0; y < h; y++) {
+                            pDst[z * (w * h) + (h - 1 - y) * w + x] = pSrc[z * (w * h) + y * w + x];
+                        }
+                    }
+                }
+            }
+
+            fits_write_img(this->pFits, TDOUBLE, 1, nElements, pOut, &status);
             break;
+
         default:
             return (asynError);
             break;
     }
 
-    /* Write the image */
-    fits_write_img(this->pFits, dataType, 1, nElements, pArray->pData, &status);
+    free(pOut);
 
     if (status > 0) {
         asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR,
