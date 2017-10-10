@@ -255,12 +255,12 @@ asynStatus NDFileFITS::writeFile(NDArray *pArray)
     switch (pArray->dataType) {
         case NDInt8:
             {
-                char *pDst = (char *) pOut;
-                char *pSrc = (char *) pArray->pData;
+                epicsInt8 *pDst = (epicsInt8 *) pOut;
+                epicsInt8 *pSrc = (epicsInt8 *) pArray->pData;
 
                 for (z = 0; z < d; z++) {
                     for (y = 0; y < h; y++) {
-                        memcpy(&pDst[z * (w * h) + (h - 1 - y) * w], &pSrc[z * (w * h) + y * w], w * sizeof(char));
+                        memcpy(&pDst[z * (w * h) + (h - 1 - y) * w], &pSrc[z * (w * h) + y * w], w * sizeof(epicsInt8));
                     }
                 }
             }
@@ -270,12 +270,12 @@ asynStatus NDFileFITS::writeFile(NDArray *pArray)
 
         case NDUInt8:
             {
-                unsigned char *pDst = (unsigned char *) pOut;
-                unsigned char *pSrc = (unsigned char *) pArray->pData;
+                epicsUInt8 *pDst = (epicsUInt8 *) pOut;
+                epicsUInt8 *pSrc = (epicsUInt8 *) pArray->pData;
 
                 for (z = 0; z < d; z++) {
                     for (y = 0; y < h; y++) {
-                        memcpy(&pDst[z * (w * h) + (h - 1 - y) * w], &pSrc[z * (w * h) + y * w], w * sizeof(unsigned char));
+                        memcpy(&pDst[z * (w * h) + (h - 1 - y) * w], &pSrc[z * (w * h) + y * w], w * sizeof(epicsUInt8));
                     }
                 }
             }
@@ -285,12 +285,12 @@ asynStatus NDFileFITS::writeFile(NDArray *pArray)
 
         case NDInt16:
             {
-                short *pDst = (short *) pOut;
-                short *pSrc = (short *) pArray->pData;
+                epicsInt16 *pDst = (epicsInt16 *) pOut;
+                epicsInt16 *pSrc = (epicsInt16 *) pArray->pData;
 
                 for (z = 0; z < d; z++) {
                     for (y = 0; y < h; y++) {
-                        memcpy(&pDst[z * (w * h) + (h - 1 - y) * w], &pSrc[z * (w * h) + y * w], w * sizeof(short));
+                        memcpy(&pDst[z * (w * h) + (h - 1 - y) * w], &pSrc[z * (w * h) + y * w], w * sizeof(epicsInt16));
                     }
                 }
             }
@@ -300,12 +300,12 @@ asynStatus NDFileFITS::writeFile(NDArray *pArray)
 
         case NDUInt16:
             {
-                unsigned short *pDst = (unsigned short *) pOut;
-                unsigned short *pSrc = (unsigned short *) pArray->pData;
+                epicsUInt16 *pDst = (epicsUInt16 *) pOut;
+                epicsUInt16 *pSrc = (epicsUInt16 *) pArray->pData;
 
                 for (z = 0; z < d; z++) {
                     for (y = 0; y < h; y++) {
-                        memcpy(&pDst[z * (w * h) + (h - 1 - y) * w], &pSrc[z * (w * h) + y * w], w * sizeof(unsigned short));
+                        memcpy(&pDst[z * (w * h) + (h - 1 - y) * w], &pSrc[z * (w * h) + y * w], w * sizeof(epicsUInt16));
                     }
                 }
             }
@@ -315,12 +315,12 @@ asynStatus NDFileFITS::writeFile(NDArray *pArray)
 
         case NDInt32:
             {
-                int *pDst = (int *) pOut;
-                int *pSrc = (int *) pArray->pData;
+                epicsInt32 *pDst = (epicsInt32 *) pOut;
+                epicsInt32 *pSrc = (epicsInt32 *) pArray->pData;
 
                 for (z = 0; z < d; z++) {
                     for (y = 0; y < h; y++) {
-                        memcpy(&pDst[z * (w * h) + (h - 1 - y) * w], &pSrc[z * (w * h) + y * w], w * sizeof(int));
+                        memcpy(&pDst[z * (w * h) + (h - 1 - y) * w], &pSrc[z * (w * h) + y * w], w * sizeof(epicsInt32));
                     }
                 }
             }
@@ -330,12 +330,12 @@ asynStatus NDFileFITS::writeFile(NDArray *pArray)
 
         case NDUInt32:
             {
-                unsigned int *pDst = (unsigned int *) pOut;
-                unsigned int *pSrc = (unsigned int *) pArray->pData;
+                epicsUInt32 *pDst = (epicsUInt32 *) pOut;
+                epicsUInt32 *pSrc = (epicsUInt32 *) pArray->pData;
 
                 for (z = 0; z < d; z++) {
                     for (y = 0; y < h; y++) {
-                        memcpy(&pDst[z * (w * h) + (h - 1 - y) * w], &pSrc[z * (w * h) + y * w], w * sizeof(unsigned int));
+                        memcpy(&pDst[z * (w * h) + (h - 1 - y) * w], &pSrc[z * (w * h) + y * w], w * sizeof(epicsUInt32));
                     }
                 }
             }
@@ -345,12 +345,12 @@ asynStatus NDFileFITS::writeFile(NDArray *pArray)
 
         case NDFloat32:
             {
-                float *pDst = (float *) pOut;
-                float *pSrc = (float *) pArray->pData;
+                epicsFloat32 *pDst = (epicsFloat32 *) pOut;
+                epicsFloat32 *pSrc = (epicsFloat32 *) pArray->pData;
 
                 for (z = 0; z < d; z++) {
                     for (y = 0; y < h; y++) {
-                        memcpy(&pDst[z * (w * h) + (h - 1 - y) * w], &pSrc[z * (w * h) + y * w], w * sizeof(float));
+                        memcpy(&pDst[z * (w * h) + (h - 1 - y) * w], &pSrc[z * (w * h) + y * w], w * sizeof(epicsFloat32));
                     }
                 }
             }
@@ -360,12 +360,12 @@ asynStatus NDFileFITS::writeFile(NDArray *pArray)
 
         case NDFloat64:
             {
-                double *pDst = (double *) pOut;
-                double *pSrc = (double *) pArray->pData;
+                epicsFloat64 *pDst = (epicsFloat64 *) pOut;
+                epicsFloat64 *pSrc = (epicsFloat64 *) pArray->pData;
 
                 for (z = 0; z < d; z++) {
                     for (y = 0; y < h; y++) {
-                        memcpy(&pDst[z * (w * h) + (h - 1 - y) * w], &pSrc[z * (w * h) + y * w], w * sizeof(double));
+                        memcpy(&pDst[z * (w * h) + (h - 1 - y) * w], &pSrc[z * (w * h) + y * w], w * sizeof(epicsFloat64));
                     }
                 }
             }
