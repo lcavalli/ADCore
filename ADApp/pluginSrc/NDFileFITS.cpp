@@ -142,43 +142,43 @@ asynStatus NDFileFITS::openFile(const char *fileName, NDFileOpenMode_t openMode,
             case NDAttrInt8:
             case NDAttrUInt8:
                 pAttribute->getValue(attrDataType, &value.i8);
-                fits_update_key(this->pFits, TBYTE, attributeName, &value.i8, attributeDescription, &status);
+                fits_write_key(this->pFits, TBYTE, attributeName, &value.i8, attributeDescription, &status);
                 break;
 
             case NDAttrInt16:
                 pAttribute->getValue(attrDataType, &value.i16);
-                fits_update_key(this->pFits, TSHORT, attributeName, &value.i16, attributeDescription, &status);
+                fits_write_key(this->pFits, TSHORT, attributeName, &value.i16, attributeDescription, &status);
                 break;
 
             case NDAttrUInt16:
                 pAttribute->getValue(attrDataType, &value.i16);
-                fits_update_key(this->pFits, TUSHORT, attributeName, &value.i16, attributeDescription, &status);
+                fits_write_key(this->pFits, TUSHORT, attributeName, &value.i16, attributeDescription, &status);
                 break;
 
             case NDAttrInt32:
                 pAttribute->getValue(attrDataType, &value.i32);
-                fits_update_key(this->pFits, TINT, attributeName, &value.i32, attributeDescription, &status);
+                fits_write_key(this->pFits, TINT, attributeName, &value.i32, attributeDescription, &status);
                 break;
 
             case NDAttrUInt32:
                 pAttribute->getValue(attrDataType, &value.i32);
-                fits_update_key(this->pFits, TUINT, attributeName, &value.i32, attributeDescription, &status);
+                fits_write_key(this->pFits, TUINT, attributeName, &value.i32, attributeDescription, &status);
                 break;
 
             case NDAttrFloat32:
                 pAttribute->getValue(attrDataType, &value.f32);
-                fits_update_key(this->pFits, TFLOAT, attributeName, &value.f32, attributeDescription, &status);
+                fits_write_key(this->pFits, TFLOAT, attributeName, &value.f32, attributeDescription, &status);
                 break;
 
             case NDAttrFloat64:
                 pAttribute->getValue(attrDataType, &value.f64);
-                fits_update_key(this->pFits, TDOUBLE, attributeName, &value.f64, attributeDescription, &status);
+                fits_write_key(this->pFits, TDOUBLE, attributeName, &value.f64, attributeDescription, &status);
                 break;
 
             case NDAttrString:
                 memset(attrString, 0, sizeof(attrString)-1);
                 pAttribute->getValue(attrDataType, attrString, sizeof(attrString)-1);
-                fits_update_key(this->pFits, TSTRING, attributeName, attrString, attributeDescription, &status);
+                fits_write_key(this->pFits, TSTRING, attributeName, attrString, attributeDescription, &status);
                 break;
 
             case NDAttrUndefined:
@@ -197,7 +197,7 @@ asynStatus NDFileFITS::openFile(const char *fileName, NDFileOpenMode_t openMode,
 
     if (status > 0) {
         asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR,
-            "%s:%s error, fits_update_key failed. file: %s\n",
+            "%s:%s error, fits_write_key failed. file: %s\n",
             driverName, functionName, fileName);
         return (asynError);
     }
